@@ -14,9 +14,11 @@ Forked from [Evernote SDK for iOS version 1.0.1](https://github.com/evernote/eve
 
 To implement in your own Mac desktop app:
 
-1. Copy `CBEvernote` folder to your project
-1. Copy `evernote` folder to your project
-1. Add `CBEvernote.h` to your header
+1. Copy `CBEvernote` folder to your project.
+1. Copy `evernote` folder to your project.
+1. Add `CBEvernote.h` to your header (in the PCH or where needed). 
+ 
+See sample project for more guidance.
 
 ### Change Notes
 
