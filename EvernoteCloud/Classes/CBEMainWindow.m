@@ -9,6 +9,9 @@
 #import "CBEMainWindow.h"
 #import "EvernoteSDK.h"
 
+static NSString * const kConsumerAPIKeyKey = @"consumer-key";
+static NSString * const kConsumerAPISecretKey = @"consumer-secret";
+
 @interface CBEMainWindow () <NSTableViewDataSource, NSTableViewDelegate>
 
 @property (assign) IBOutlet NSButton *syncButton;
@@ -57,9 +60,11 @@
 - (IBAction)syncButtonClicked:(id)sender
 {
     // set up Evernote session singleton
+    NSString *authPath = [[NSBundle mainBundle] pathForResource:@"evernote-auth.plist" ofType:nil];
+    NSDictionary *consumerInfo = [NSDictionary dictionaryWithContentsOfFile:authPath];
     [EvernoteSession setSharedSessionHost:BootstrapServerBaseURLStringSandbox
-                              consumerKey:@""
-                           consumerSecret:@""];
+                              consumerKey:consumerInfo[kConsumerAPIKeyKey]
+                           consumerSecret:consumerInfo[kConsumerAPISecretKey]];
     
     // no-op view controller to satisfy the iOS portion of the SDK
     NSViewController *viewController = [NSViewController new];

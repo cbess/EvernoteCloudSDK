@@ -59,6 +59,7 @@
 		922D663A16A1DA25002069A9 /* EvernoteSession+CBEvernote.m in Sources */ = {isa = PBXBuildFile; fileRef = 922D663916A1DA24002069A9 /* EvernoteSession+CBEvernote.m */; };
 		922D663F16A1E367002069A9 /* CBENOAuthViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 922D663E16A1E367002069A9 /* CBENOAuthViewController.xib */; };
 		922D664216A1E640002069A9 /* CBENOAuthViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 922D664116A1E640002069A9 /* CBENOAuthViewController.m */; };
+		92503D0A16BF7A8E00A34056 /* evernote-auth.plist in Resources */ = {isa = PBXBuildFile; fileRef = 92503D0916BF7A8E00A34056 /* evernote-auth.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -176,6 +177,7 @@
 		922D663E16A1E367002069A9 /* CBENOAuthViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CBENOAuthViewController.xib; path = Classes/CBEvernote/CBENOAuthViewController.xib; sourceTree = "<group>"; };
 		922D664016A1E63F002069A9 /* CBENOAuthViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBENOAuthViewController.h; sourceTree = "<group>"; };
 		922D664116A1E640002069A9 /* CBENOAuthViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBENOAuthViewController.m; sourceTree = "<group>"; };
+		92503D0916BF7A8E00A34056 /* evernote-auth.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "evernote-auth.plist"; sourceTree = "<group>"; };
 		929DA04F16A127C1004BD901 /* CBMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CBMacros.h; path = Classes/CBEvernote/CBMacros.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -260,6 +262,7 @@
 				9204CB5116A11ACC00625BAF /* EvernoteCloudDemo-Info.plist */,
 				9204CB5216A11ACC00625BAF /* InfoPlist.strings */,
 				9204CB5516A11ACC00625BAF /* main.m */,
+				92503D0916BF7A8E00A34056 /* evernote-auth.plist */,
 				929DA04F16A127C1004BD901 /* CBMacros.h */,
 				9204CB5716A11ACC00625BAF /* EvernoteCloudDemo-Prefix.pch */,
 				9204CB5816A11ACC00625BAF /* Credits.rtf */,
@@ -580,6 +583,7 @@
 				922D660D16A1CFF7002069A9 /* LICENSE in Resources */,
 				922D662616A1CFF7002069A9 /* Localizable.strings in Resources */,
 				922D663F16A1E367002069A9 /* CBENOAuthViewController.xib in Resources */,
+				92503D0A16BF7A8E00A34056 /* evernote-auth.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
