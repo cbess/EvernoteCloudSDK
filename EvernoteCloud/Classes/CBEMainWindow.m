@@ -109,14 +109,13 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
                                                                    lastEditedBy:nil
                                                                 classifications:nil];
     // create the note from the input text
-    NSDate *now = [NSDate date];
     EDAMNote *note = [[EDAMNote alloc] initWithGuid:nil
                                               title:title
                                             content:noteContent
                                         contentHash:nil
                                       contentLength:(int)noteContent.length
-                                            created:now.timeIntervalSince1970
-                                            updated:now.timeIntervalSince1970
+                                            created:0
+                                            updated:0
                                             deleted:0
                                              active:YES
                                   updateSequenceNum:0
