@@ -14,6 +14,9 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 
 @interface CBEMainWindow () <NSTableViewDataSource, NSTableViewDelegate>
 
+@property (weak) IBOutlet NSTextField *noteNameTextField;
+@property (unsafe_unretained) IBOutlet NSTextView *noteBodyTextView;
+@property (weak) IBOutlet NSTextField *notebookLabel;
 @property (assign) IBOutlet NSButton *syncButton;
 @property (strong) IBOutlet NSTableView *tableView;
 
@@ -55,6 +58,23 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
     }];
 }
 
+- (void)fetchNotebooks
+{
+    // grab the notebooks
+    EvernoteNoteStore *noteStore = [EvernoteNoteStore noteStore];
+    [noteStore listNotebooksWithSuccess:^(NSArray *notebooks) {
+        EDAMNotebook *notebook = notebooks[0];
+        CBDebugLog(@"notebooks: %@", notebooks);
+        
+        self.notebookLabel.stringValue = notebook.name;
+        
+        // ultimately updates the table view
+        [self fetchAllNotesWithNotebookGUID:notebook.guid];
+    } failure:^(NSError *error) {
+        CBDebugLog(@"error %@", error);
+    }];
+}
+
 #pragma mark - Events
 
 - (IBAction)syncButtonClicked:(id)sender
@@ -83,19 +103,23 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
             
             NSRunAlertPanel(@"Authorization", @"Evernote access allowed. Press OK to fetch note information.", @"OK", nil, nil);
             
-            // grab the notebooks
-            EvernoteNoteStore *noteStore = [EvernoteNoteStore noteStore];
-            [noteStore listNotebooksWithSuccess:^(NSArray *notebooks) {
-                EDAMNotebook *notebook = notebooks[0];
-                NSLog(@"notebooks: %@", notebooks);
-                
-                // ultimately updates the table view
-                [self fetchAllNotesWithNotebookGUID:notebook.guid];
-            } failure:^(NSError *error) {
-                NSLog(@"error %@", error);
-            }];
+            [self fetchNotebooks];
         }
     }];
+}
+
+// 'new note' pressed
+- (IBAction)addNoteButtonPressed:(id)sender
+{
+    self.noteNameTextField.stringValue = @"";
+    self.noteBodyTextView.string = @"";
+    
+    [self makeFirstResponder:self.noteNameTextField];
+}
+
+- (IBAction)saveNoteButtonPressed:(id)sender
+{
+    
 }
 
 #pragma mark - TableView
