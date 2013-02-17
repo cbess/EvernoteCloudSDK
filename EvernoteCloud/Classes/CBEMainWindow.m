@@ -85,15 +85,10 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 - (EDAMNote *)newNoteWithTitle:(NSString *)title contents:(NSString *)contents
 {
     // convert plain-text to valid evernote contents
-    NSString *noteContent = [NSString stringWithFormat:
-                             @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                             "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-                             "<en-note>"
-                             "%@"
-                             "</en-note>",
-                             contents];
+    NSString *noteContent = [self evernoteContentStringWithContents:contents];
     
     // providing attributes to make read-only, and add other meta info
+    // http://dev.evernote.com/documentation/cloud/chapters/read_only_notes.php
     EDAMNoteAttributes *attrs = [[EDAMNoteAttributes alloc] initWithSubjectDate:0
                                                                        latitude:0
                                                                       longitude:0
@@ -121,7 +116,8 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
                                   updateSequenceNum:0
                                        notebookGuid:self.selectedNotebook.guid // add to selected notebook
                                            tagGuids:nil
-                                          resources:nil // uses resource to add attachments to the note
+                                        // https://github.com/evernote/evernote-sdk-ios/blob/master/SampleApp/iPhoneViewController.m#L149
+                                          resources:nil // use resources to add attachments to the note
                                          attributes:attrs
                                            tagNames:nil];
     return note;
@@ -133,6 +129,27 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
     formatter.dateStyle = NSDateFormatterShortStyle;
     formatter.timeStyle = NSDateFormatterMediumStyle;
     return [formatter stringFromDate:date];
+}
+
+// ref: http://dev.evernote.com/documentation/local/chapters/enml.php
+- (NSString *)evernoteContentStringWithContents:(NSString *)contents
+{
+    contents = [contents stringByReplacingOccurrencesOfString:@"\n\n" withString:@"<div><br /></div>\n"];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^(.*)$"
+                                                                           options:NSRegularExpressionAnchorsMatchLines
+                                                                             error:nil];
+    // wrap new lines
+    NSString *noteContents = [regex stringByReplacingMatchesInString:contents
+                                                             options:0
+                                                               range:NSMakeRange(0, contents.length)
+                                                        withTemplate:@"<div>$1</div>"];
+    return [NSString stringWithFormat:
+     @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+     "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+     "<en-note>"
+     "%@"
+     "</en-note>",
+     noteContents];
 }
 
 #pragma mark - Events

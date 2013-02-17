@@ -33,7 +33,7 @@ I also added some **sample code to list notebooks and notes**.
 
 The code within this SDK is compatible with both the Mac (tested) and iOS (untested) platforms.
 
-### Purpose
+## Purpose
 
 I saw no good Evernote Mac examples and the Evernote iOS SDK was about 90% compatible with Cocoa/AppKit.
 
