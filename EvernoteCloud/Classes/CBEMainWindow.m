@@ -69,6 +69,7 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
         // store the notebooks
         self.notebooks = [NSMutableArray arrayWithArray:notebooks];
         
+        // store first notebook
         EDAMNotebook *notebook = notebooks[0];
         self.selectedNotebook = notebook;
         CBDebugLog(@"notebooks: %@", notebooks);
@@ -123,7 +124,7 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
     return note;
 }
 
-- (NSString *)readableStringFromDate:(NSDate *)date
+- (NSString *)stringFromDate:(NSDate *)date
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     formatter.dateStyle = NSDateFormatterShortStyle;
@@ -187,7 +188,7 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
             [self fetchNotebooks];
             
             // update ui
-            self.footerLabel.stringValue = [self readableStringFromDate:[NSDate date]];
+            self.footerLabel.stringValue = [self stringFromDate:[NSDate date]];
             [self.createNoteButton setEnabled:YES];
             [self.syncButton setTitle:@"Refresh"];
         }
@@ -209,9 +210,9 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 
 - (IBAction)sendNoteButtonPressed:(id)sender
 {
-    // send the note to evernote
     EDAMNote *note = [self newNoteWithTitle:self.noteNameTextField.stringValue
                                    contents:self.noteBodyTextView.string];
+    // send the note to evernote
     [[EvernoteNoteStore noteStore] createNote:note success:^(EDAMNote *note) {
         [self createNoteButtonPressed:nil]; // clear note fields
         NSRunAlertPanel(@"Send Note", @"Note saved and sent to Evernote.", @"OK", nil, nil);
@@ -229,7 +230,7 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
     if ([tableColumn.identifier isEqualToString:@"name"])
         return note.title;
     else if ([tableColumn.identifier isEqualToString:@"date"])
-        return [self readableStringFromDate:[NSDate dateWithTimeIntervalSince1970:note.updated]];
+        return [self stringFromDate:[NSDate dateWithTimeIntervalSince1970:note.updated]];
     
     return nil;
 }
