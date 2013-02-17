@@ -18,10 +18,14 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 @property (unsafe_unretained) IBOutlet NSTextView *noteBodyTextView;
 @property (weak) IBOutlet NSTextField *notebookLabel;
 @property (assign) IBOutlet NSButton *syncButton;
+@property (weak) IBOutlet NSButton *createNoteButton;
+@property (weak) IBOutlet NSButton *sendNoteButton;
 @property (strong) IBOutlet NSTableView *tableView;
+@property (weak) IBOutlet NSTextField *footerLabel;
 
-//@property (nonatomic, strong) NSMutableArray *notebooks;
+@property (nonatomic, strong) NSMutableArray *notebooks;
 @property (nonatomic, strong) NSMutableArray *notes;
+@property (nonatomic, strong) EDAMNotebook *selectedNotebook;
 
 @end
 
@@ -36,7 +40,6 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 
 - (void)fetchAllNotesWithNotebookGUID:(EDAMGuid)guid
 {
-    EvernoteNoteStore *defaultNoteStore = [EvernoteNoteStore noteStore];
     // filter for all notes in the notebook with the specified GUID
     EDAMNoteFilter* noteFilter = [[EDAMNoteFilter alloc] initWithOrder:0
                                                              ascending:NO
@@ -47,7 +50,8 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
                                                               inactive:NO
                                                             emphasized:nil];
     // get the notebook notes
-    [defaultNoteStore findNotesWithFilter:noteFilter offset:0 maxNotes:INT16_MAX success:^(EDAMNoteList *list) {
+    EvernoteNoteStore *noteStore = [EvernoteNoteStore noteStore];
+    [noteStore findNotesWithFilter:noteFilter offset:0 maxNotes:INT16_MAX success:^(EDAMNoteList *list) {
         self.notes = list.notes;
         CBDebugLog(@"got %lu notes", self.notes.count);
         
@@ -61,9 +65,12 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 - (void)fetchNotebooks
 {
     // grab the notebooks
-    EvernoteNoteStore *noteStore = [EvernoteNoteStore noteStore];
-    [noteStore listNotebooksWithSuccess:^(NSArray *notebooks) {
+    [[EvernoteNoteStore noteStore] listNotebooksWithSuccess:^(NSArray *notebooks) {
+        // store the notebooks
+        self.notebooks = [NSMutableArray arrayWithArray:notebooks];
+        
         EDAMNotebook *notebook = notebooks[0];
+        self.selectedNotebook = notebook;
         CBDebugLog(@"notebooks: %@", notebooks);
         
         self.notebookLabel.stringValue = notebook.name;
@@ -73,6 +80,60 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
     } failure:^(NSError *error) {
         CBDebugLog(@"error %@", error);
     }];
+}
+
+- (EDAMNote *)newNoteWithTitle:(NSString *)title contents:(NSString *)contents
+{
+    // convert plain-text to valid evernote contents
+    NSString *noteContent = [NSString stringWithFormat:
+                             @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                             "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+                             "<en-note>"
+                             "%@"
+                             "</en-note>",
+                             contents];
+    
+    // providing attributes to make read-only, and add other meta info
+    EDAMNoteAttributes *attrs = [[EDAMNoteAttributes alloc] initWithSubjectDate:0
+                                                                       latitude:0
+                                                                      longitude:0
+                                                                       altitude:0
+                                                                         author:@"dev-author"
+                                                                         source:nil
+                                                                      sourceURL:nil
+                                                              sourceApplication:nil
+                                                                      shareDate:0
+                                                                      placeName:nil
+                                                                   contentClass:@"dev.evernotecloud.sdk" // make readonly
+                                                                applicationData:nil
+                                                                   lastEditedBy:nil
+                                                                classifications:nil];
+    // create the note from the input text
+    NSDate *now = [NSDate date];
+    EDAMNote *note = [[EDAMNote alloc] initWithGuid:nil
+                                              title:title
+                                            content:noteContent
+                                        contentHash:nil
+                                      contentLength:(int)noteContent.length
+                                            created:now.timeIntervalSince1970
+                                            updated:now.timeIntervalSince1970
+                                            deleted:0
+                                             active:YES
+                                  updateSequenceNum:0
+                                       notebookGuid:self.selectedNotebook.guid // add to selected notebook
+                                           tagGuids:nil
+                                          resources:nil // uses resource to add attachments to the note
+                                         attributes:attrs
+                                           tagNames:nil];
+    return note;
+}
+
+- (NSString *)readableStringFromDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateStyle = NSDateFormatterShortStyle;
+    formatter.timeStyle = NSDateFormatterMediumStyle;
+    return [formatter stringFromDate:date];
 }
 
 #pragma mark - Events
@@ -101,25 +162,43 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
             CBDebugLog(@"authenticated! noteStoreUrl:%@ webApiUrlPrefix:%@", session.noteStoreUrl, session.webApiUrlPrefix);
             CBDebugLog(@"fetching note information...");
             
-            NSRunAlertPanel(@"Authorization", @"Evernote access allowed. Press OK to fetch note information.", @"OK", nil, nil);
+            if (self.selectedNotebook == nil)
+                NSRunAlertPanel(@"Authorization", @"Evernote access allowed. Press OK to fetch note information.", @"OK", nil, nil);
             
             [self fetchNotebooks];
+            
+            // update ui
+            self.footerLabel.stringValue = [self readableStringFromDate:[NSDate date]];
+            [self.createNoteButton setEnabled:YES];
+            [self.syncButton setTitle:@"Refresh"];
         }
     }];
 }
 
 // 'new note' pressed
-- (IBAction)addNoteButtonPressed:(id)sender
+- (IBAction)createNoteButtonPressed:(id)sender
 {
     self.noteNameTextField.stringValue = @"";
     self.noteBodyTextView.string = @"";
     
+    [self.noteNameTextField setEnabled:YES];
+    [self.noteBodyTextView setEditable:YES];
+    
     [self makeFirstResponder:self.noteNameTextField];
+    [self.sendNoteButton setEnabled:YES];
 }
 
-- (IBAction)saveNoteButtonPressed:(id)sender
+- (IBAction)sendNoteButtonPressed:(id)sender
 {
-    
+    // send the note to evernote
+    EDAMNote *note = [self newNoteWithTitle:self.noteNameTextField.stringValue
+                                   contents:self.noteBodyTextView.string];
+    [[EvernoteNoteStore noteStore] createNote:note success:^(EDAMNote *note) {
+        [self createNoteButtonPressed:nil]; // clear note fields
+        NSRunAlertPanel(@"Send Note", @"Note saved and sent to Evernote.", @"OK", nil, nil);
+    } failure:^(NSError *error) {
+        CBDebugLog(@"error: %@", error);
+    }];
 }
 
 #pragma mark - TableView
@@ -131,7 +210,7 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
     if ([tableColumn.identifier isEqualToString:@"name"])
         return note.title;
     else if ([tableColumn.identifier isEqualToString:@"date"])
-        return [NSDate dateWithTimeIntervalSince1970:note.created];
+        return [self readableStringFromDate:[NSDate dateWithTimeIntervalSince1970:note.updated]];
     
     return nil;
 }
