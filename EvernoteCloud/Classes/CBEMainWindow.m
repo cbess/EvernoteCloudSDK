@@ -134,15 +134,18 @@ static NSString * const kConsumerAPISecretKey = @"consumer-secret";
 // ref: http://dev.evernote.com/documentation/local/chapters/enml.php
 - (NSString *)evernoteContentStringWithContents:(NSString *)contents
 {
+    // replace the blank/empty lines
     contents = [contents stringByReplacingOccurrencesOfString:@"\n\n" withString:@"<div><br /></div>\n"];
+    
+    // wrap new lines
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^(.*)$"
                                                                            options:NSRegularExpressionAnchorsMatchLines
                                                                              error:nil];
-    // wrap new lines
     NSString *noteContents = [regex stringByReplacingMatchesInString:contents
                                                              options:0
                                                                range:NSMakeRange(0, contents.length)
                                                         withTemplate:@"<div>$1</div>"];
+    // build enml string
     return [NSString stringWithFormat:
      @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
      "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
