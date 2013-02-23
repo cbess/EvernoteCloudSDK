@@ -6,7 +6,10 @@ Forked from [Evernote SDK for iOS version 1.0.1](https://github.com/evernote/eve
 
 ## Demo Setup
 
-1. Provide API info in `CBMainWindow.m`
+1. Provide API info:
+  1. Add `evernote-auth.plist` to your project (ignored by git)
+  2. Add *consumer-key* string under *Root*, value = your consumer key
+  3. Add *consumer-secret* string under *Root*, value = your consumer key
 1. Start the app
 1. Click `Sync` button
 
