@@ -631,7 +631,7 @@
                                                                                 oauthCallbackPrefix:self.oauthCallback
                                                                                         profileName:self.currentProfile
                                                                                            delegate:self];
-        [authVC presentSheet];
+        [authVC presentSheetForWindow:[NSApplication sharedApplication].keyWindow];
         
         self.oauthViewController = authVC;
 #endif

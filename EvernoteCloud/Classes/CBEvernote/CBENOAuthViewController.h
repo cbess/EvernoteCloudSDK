@@ -12,7 +12,7 @@
 
 - (id)initWithAuthorizationURL:(NSURL *)authorizationURL oauthCallbackPrefix:(NSString *)oauthCallbackPrefix profileName:(NSString *)currentProfileName delegate:(id<ENOAuthViewControllerDelegate>)delegate;
 
-- (void)presentSheet;
+- (void)presentSheetForWindow:(NSWindow *)window;
 - (void)dismissSheet;
 
 @end

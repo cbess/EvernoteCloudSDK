@@ -37,13 +37,13 @@
 
 #pragma mark - Sheet
 
-- (void)presentSheet
+- (void)presentSheetForWindow:(NSWindow *)window
 {
     [self.activityIndicator startAnimation:nil];
     
     // show the sheet
     [[NSApplication sharedApplication] beginSheet:self.view.window
-                                   modalForWindow:[NSApplication sharedApplication].keyWindow
+                                   modalForWindow:window
                                     modalDelegate:self
                                    didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
                                       contextInfo:nil];
