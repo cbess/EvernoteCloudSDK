@@ -1,5 +1,7 @@
 ## Evernote for Mac (Built on top of the Evernote SDK for iOS)
 
+![image](https://raw.github.com/cbess/EvernoteCloudSDK/master/screenshot.jpg)
+
 Forked from [Evernote SDK for iOS version 1.0.1](https://github.com/evernote/evernote-sdk-ios/commit/b5e932581b069257350efff8f4de19b3706e51ed).
 
 100% compatible with [Evernote SDK for iOS](https://github.com/evernote/evernote-sdk-ios).
