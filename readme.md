@@ -1,3 +1,12 @@
+## Our efforts worked
+
+As of v1.1.1, Evernote SDK is Mac/iOS compatible:
+
+- [Mac SDK](https://github.com/evernote/evernote-sdk-mac)
+- [Install Mac SDK](https://github.com/evernote/evernote-sdk-mac/blob/master/INSTALL-MAC.md)
+
+Please use the SDK links above.
+
 ## Evernote for Mac (Built on top of the Evernote SDK for iOS)
 
 ![image](https://raw.github.com/cbess/EvernoteCloudSDK/master/screenshot.jpg)
